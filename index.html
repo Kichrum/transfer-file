@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io.connect('http://localhost:8080');
+            socket.on('new_user', function(data) {
+                console.log(data);
+            });
+        </script>
+    </head>
+    <body></body>
+</html>
