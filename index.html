@@ -1,13 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
         <script src="/socket.io/socket.io.js"></script>
         <script>
-            var socket = io.connect('http://localhost:8080');
-            socket.on('new_user', function(data) {
-                console.log(data);
+            var socket = io.connect('http://home.pash.tk:8080');
+            oFReader = new FileReader();
+            
+            socket.emit('new_user', location.hash);
+            socket.on('new_user', function(hash) {
+                if (hash == location.hash) {
+                    console.log('Sending file...' + hash);
+                    var oFile = document.getElementById("file_input").files[0];
+              
+                    oFReader.readAsDataURL(oFile);
+                    oFReader.onload = function(evt) {
+                      socket.emit('send_file', evt.target.result);  
+                    };
+                }
             });
+            socket.on('get_file', function(data) {
+                console.log('Getting file...');
+//                console.log(data);
+//                document.write(data);
+                    location.href = data;
+                
+            });
+            var sendFile = function() {
+                location.hash = Math.floor(Math.random() * 10000);
+                socket.emit('new_file', location.hash);
+            }
+//            oFReader.onload = function (oFREvent) {
+//                document.getElementById("uploadPreview").src = oFREvent.target.result;
+//              };
+            function loadFile() {
+              if (document.getElementById("file_input").files.length === 0) { return; }
+              var oFile = document.getElementById("file_input").files[0];
+              
+              oFReader.readAsDataURL(oFile);
+            }
         </script>
     </head>
-    <body></body>
+    <body>
+        <form action="" id="file_form" onsubmit="sendFile();
+                return false;">
+            <input type="file" id="file_input" onchange="loadFile();" />
+            <input type="submit" />
+        </form>
+    </body>
 </html>
