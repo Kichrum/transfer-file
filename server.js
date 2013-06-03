@@ -1,4 +1,4 @@
-var fs = require('fs');
+//var fs = require('fs');
 var http = require('http');
 
 // Serve client side statically
@@ -6,12 +6,12 @@ var express = require('express');
 var app = express();
 app.use(express.static(__dirname + '/'));
 
-var response;
-app.get('/1.mp4', function(req, res) {
+var response = [];
+app.get('/content/:filename', function(req, res) {
    res.writeHead(200);
 //   res.setEncoding('binary');
-console.log('File:');
-response = res;
+console.log('File:' + req.params.filename);
+response[req.params.filename] = res;
 //console.log(file);
 //   res.write(file, 'binary');
 //   res.end();
@@ -27,23 +27,91 @@ var bs = BinaryServer({server: server});
 bs.on('connection', function(client){
   // Incoming stream from browsers
   client.on('stream', function(stream, meta){
-    //
-//    var file = fs.createWriteStream(__dirname+ '/public/' + meta.name);
-    stream.pipe(response, {end: false});
-    stream.on('end', function() {
-        response.end();
-        console.log('Transfer finished');
-    });
-//response.write(stream);
-//response.end(stream, 'binary');
-    
-    //
-    // Send progress back
-    stream.on('data', function(data){
-      stream.write({rx: data.length / meta.size});
-    });
-//    response.end();
-    //
+//      client.broadcast.emit('notfound');
+      console.log(meta.name);
+//      var response;
+//        app.get('/' + meta.name, function(req, res) {
+//            console.log('method ' + req.method);
+//    stream.pause();
+//        bs.get('/:fname', function(rec) {
+//            console.log('connected!');
+//            stream.resume();
+//            rec.send(stream);
+////            stream.pipe(rec, {end: false});
+////            stream.on('end', function() {
+////                res.end();
+//                console.log('Transfer rec finished');
+////            });
+//            // Send progress back
+//            stream.on('data', function(data) {
+//                stream.write({rx: data.length / meta.size});
+//            });
+//        });
+//        stream.pause();
+//        var res = response[meta.name];
+//        setTimeout(function() {
+//            res = response[meta.name];
+//            if (res) {
+//                stream.resume();
+//                console.log('Transfer started');
+//
+//                stream.pipe(res, {end: false});
+//                stream.on('end', function() {
+//                    res.end();
+//                    console.log('Transfer finished');
+//                });
+//
+//            }
+//        }, 3000);
+//        // Send progress back
+//                stream.on('data', function(data) {
+//                    stream.write({rx: data.length / meta.size});
+//                });
+
+
+        var res = response[meta.name];
+//        stream.pause();
+//        while (!res) {
+//            var interval = setInterval(function() {
+//                res = response[meta.name];
+//                console.log('Retry...');
+                if (res) {
+//                    clearInterval(interval);
+//                    stream.resume();
+                    console.log('Transfer started');
+
+                    stream.pipe(res, {end: false});
+                    stream.on('end', function() {
+                        res.end();
+                        console.log('Transfer finished');
+                    });
+                    // Send progress back
+                    stream.on('data', function(data) {
+                        stream.write({rx: data.length / meta.size});
+                    });
+                }
+//            }, 5000);
+            
+//    console.log('waiting...');
+//        }
+//        if (res) {
+//            stream.resume();
+//            console.log('Transfer started');
+//
+//            stream.pipe(res, {end: false});
+//            stream.on('end', function() {
+//                res.end();
+//                console.log('Transfer finished');
+//            });
+//            // Send progress back
+//            stream.on('data', function(data) {
+//                stream.write({rx: data.length / meta.size});
+//            });
+//        }
+//        else {
+//            stream.pause();
+//        }
+//        });
   });
 });
 //

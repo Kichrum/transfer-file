@@ -3,7 +3,7 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script> 
   <script src="http://cdn.binaryjs.com/0/binary.js"></script>
   <script>
-    var client = new BinaryClient('ws://localhost:9000');
+    var client = new BinaryClient('ws://home.pash.tk:9000');
     
     // Wait for connection to BinaryJS server
     client.on('open', function(){
@@ -16,20 +16,31 @@
         var file = e.originalEvent.dataTransfer.files[0];
         
         // Add to list of uploaded files
-        $('<div align="center"></div>').append($('<a></a>').text(file.name).prop('href', '/'+file.name)).appendTo('body');
+//        $('<div align="center"></div>').append($('<a></a>').text(file.name).prop('href', '/'+file.name)).appendTo('body');
+        $('<div align="center"></div>').append($('<span></span>').text('http://home.pash.tk:9000/content/'+file.name)).appendTo('body');
         
         // `client.send` is a helper function that creates a stream with the 
         // given metadata, and then chunks up and streams the data.
-        var stream = client.send(file, {name: file.name, size: file.size});
+        var stream;
+        var interval = setInterval(function() {
+        stream = client.send(file, {name: file.name, size: file.size});
+//        stream.pause();
+//        stream.on('resume', function() {
+//            console.log('restart');
+//            stream = client.send(file, {name: file.name, size: file.size});
+//        });
         
         // Print progress
         var tx = 0;
         stream.on('data', function(data){
+            clearInterval(interval);
           $('#progress').text(Math.round(tx+=data.rx*100) + '% complete');
         });
+        }, 5000);
       }); 
     });
-    
+//    client.on('nf', function(data) { console.log('aaa');});
+//    client.emit('fn', 'ss');
     // Deal with DOM quirks
     function doNothing (e){
       e.preventDefault();
