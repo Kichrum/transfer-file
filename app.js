@@ -7,6 +7,17 @@ server.listen(8080);
 app.get('/', function(req, res) {
     res.sendfile(__dirname + '/index.html');
 });
+var file;
+var resource;
+app.get('/1.zip', function(req, res) {
+   res.writeHead(200);
+//   res.setEncoding('binary');
+console.log('File:');
+resource = res;
+//console.log(file);
+//   res.write(file, 'binary');
+//   res.end();
+});
 
 var files = [];
 //var reader = new FileReader();
@@ -25,11 +36,16 @@ io.sockets.on('connection', function(socket) {
 //        socket.sendfile(data);
 //        var fs = require('fs');
 //        fs.readFile(data, function(err, content) {
-            console.log('File:');
+//            console.log('File:');
 //           console.log(data); 
            
 //        });
-        socket.broadcast.emit('get_file', data);
+console.log('Transfering...');
+var buf = new Buffer(data);
+        buf.pipe(resource);
+        console.log('Ending...');
+        resource.end();
+//        socket.broadcast.emit('get_file', data);
     });
 //    socket.on('my other event', function(data) {
 //        console.log(data);
