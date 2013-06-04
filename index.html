@@ -3,9 +3,8 @@
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script> 
         <script src="http://cdn.binaryjs.com/0/binary.js"></script>
         <script>
-            var client = new BinaryClient('ws://home.pash.tk:9000');
+            var client = new BinaryClient('ws://' + location.host);
 
-            // Wait for connection to BinaryJS server
             client.on('open', function() {
                 var box = $('#box');
                 box.on('dragenter', doNothing);
@@ -14,26 +13,21 @@
                 box.on('drop', function(e) {
                     e.originalEvent.preventDefault();
                     var file = e.originalEvent.dataTransfer.files[0];
+                    var filename = Math.round(Math.random() * 100000) + '.' + file.name.substr(file.name.lastIndexOf('.') + 1);
+                    $('<div align="center"></div>').append($('<span></span>').text('http://' + location.host + '/content/' + filename)).appendTo('body');
 
-                    // Add to list of uploaded files
-                    $('<div align="center"></div>').append($('<span></span>').text('http://home.pash.tk:9000/content/' + file.name)).appendTo('body');
-
-                    // `client.send` is a helper function that creates a stream with the 
-                    // given metadata, and then chunks up and streams the data.
                     var stream;
                     var interval = setInterval(function() {
-                        stream = client.send(file, {name: file.name, size: file.size});
+                        stream = client.send(file, {name: filename, size: file.size});
 
-                        // Print progress
                         var tx = 0;
                         stream.on('data', function(data) {
                             clearInterval(interval);
                             $('#progress').text(Math.round(tx += data.rx * 100) + '% complete');
                         });
-                    }, 5000);
+                    }, 2000);
                 });
             });
-            // Deal with DOM quirks
             function doNothing(e) {
                 e.preventDefault();
                 e.stopPropagation();
