@@ -1,8 +1,8 @@
 <html>
     <head>
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script> 
-        <script src="http://cdn.binaryjs.com/0/binary.js"></script>
-        <script>
+        <script type="text/javascript" src="http://cdn.binaryjs.com/0/binary.js"></script>
+        <script type="text/javascript">
             var client = new BinaryClient('ws://' + location.host);
 
             client.on('open', function() {
@@ -13,17 +13,28 @@
                 box.on('drop', function(e) {
                     e.originalEvent.preventDefault();
                     var file = e.originalEvent.dataTransfer.files[0];
-                    var filename = Math.round(Math.random() * 100000) + '.' + file.name.substr(file.name.lastIndexOf('.') + 1);
-                    $('<div align="center"></div>').append($('<span></span>').text('http://' + location.host + '/content/' + filename)).appendTo('body');
+                    var filename = Math.round(Math.random() * 100000) +
+                            '.' +
+                            file.name.substr(file.name.lastIndexOf('.') + 1);
+                    $('<div align="center"></div>')
+                            .append($('<span></span>')
+                            .text('http://' + location.host +
+                            '/download/' + filename + '.html'))
+                            .appendTo('body');
 
                     var stream;
                     var interval = setInterval(function() {
-                        stream = client.send(file, {name: filename, size: file.size});
+                        stream = client.send(file, {
+                            name: filename,
+                            size: file.size
+                        });
 
                         var tx = 0;
                         stream.on('data', function(data) {
                             clearInterval(interval);
-                            $('#progress').text(Math.round(tx += data.rx * 100) + '% complete');
+                            $('#progress').text(
+                                    Math.round(tx += data.rx * 100) +
+                                    '% complete');
                         });
                     }, 2000);
                 });

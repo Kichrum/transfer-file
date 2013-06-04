@@ -3,6 +3,7 @@ var http = require('http');
 var express = require('express');
 var app = express();
 app.use(express.static(__dirname + '/'));
+//express.static();
 
 var responses = [];
 var files = [];
@@ -15,6 +16,19 @@ app.get('/content/:filename', function(request, response) {
     response.writeHead(200);
     console.log('Requested file: ' + request.params.filename);
     responses[request.params.filename] = response;
+});
+
+app.get('/download/:filename.html', function(request, response) {
+    if (files.indexOf(request.params.filename) === -1) {
+        response.writeHead('404');
+        response.end('Resource not found or has already downloaded once');
+        return false;
+    }
+    response.setHeader('Content-Type', 'text/html');
+    response.end('File ' +
+            request.params.filename +
+            ' is ready for download. <a href="/content/' +
+            request.params.filename + '">Get it</a>');
 });
 
 var server = http.createServer(app);
